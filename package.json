@@ -3,7 +3,7 @@
   "author": "Sergey Loysha",
   "description": "",
   "license": "MIT",
-  "version": "0.0.3",
+  "version": "0.0.1",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
