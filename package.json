@@ -3,12 +3,12 @@
   "author": "Sergey Loysha",
   "description": "",
   "license": "MIT",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
   "scripts": {
-    "build": "tsup index.ts --format cjs,esm --dts",
+    "build": "tsup src/index.ts --format cjs,esm --dts",
     "release": "npm run build && changeset publish",
     "lint": "tsc"
   },

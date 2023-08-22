@@ -2,4 +2,4 @@
 "@upthrust/datalayer": patch
 ---
 
-Init
+Init version
