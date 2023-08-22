@@ -1,5 +1,1 @@
-export class Datalayer {
-  constructor() {
-  }
-
-}
+export class Datalayer {}
