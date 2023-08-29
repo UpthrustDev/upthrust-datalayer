@@ -5,6 +5,14 @@
 In this example, a module is imported into the project and initialized. It listens for triggers and automatically collects click events.
 
 ```js
+// minimal working example
+import { DataLayer } from "@upthrust/datalayer";
+
+const tracking = new DataLayer();
+```
+
+```js
+// example with custom triggers
 import { DataLayer } from "@upthrust/datalayer";
 
 (async function () {
