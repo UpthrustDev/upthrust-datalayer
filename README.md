@@ -29,7 +29,7 @@ function init() {
   window.tracking = new DataLayer();
 
   window.changeLanguage = (language) => {
-    // The class instance contains a pushvent function for the ability to create custom triggers
+    // The class instance contains a `pushEvent` function for the ability to create custom triggers
     window.tracking.pushEvent("click", {
       type: "language_change",
       language
