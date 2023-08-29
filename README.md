@@ -43,7 +43,7 @@ To prepare triggers, you need to add `data-tracking` attribute. To ensure that a
 </button>
 ```
 
-event object for this trgigger
+event object that will be sent to the datalayer
 ```json
 {
   "event": "button_click"
@@ -64,7 +64,7 @@ event object for this trgigger
 </button>
 ```
 
-event object for this trgigger
+event object that will be sent to the datalayer
 ```json
 {
   "event": "download_click"
@@ -86,7 +86,7 @@ event object for this trgigger
 </button>
 ```
 
-event object for this trgigger
+event object that will be sent to the datalayer
 ```json
 {
   "event": "cta_click"
