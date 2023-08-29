@@ -29,6 +29,10 @@ function init() {
 
 To prepare triggers, you need to add `data-tracking` attribute. To ensure that an event is sent, attribute `data-tracking-event` with the name of the event should be specified. Other attributes prefixed with `data-tracking-` will be parsed automatically.
 
+## Usage
+
+### Trigger #1
+
 ```html
 <button
   data-tracking=""
@@ -38,6 +42,16 @@ To prepare triggers, you need to add `data-tracking` attribute. To ensure that a
   Start accelerating my growth
 </button>
 ```
+
+event object for this trgigger
+```json
+{
+  "event": "button_click"
+  "label": "Start accelerating my growth"
+}
+```
+
+### Trigger #2
 
 ```html
 <button
@@ -50,6 +64,17 @@ To prepare triggers, you need to add `data-tracking` attribute. To ensure that a
 </button>
 ```
 
+event object for this trgigger
+```json
+{
+  "event": "download_click"
+  "label": "Reversed Funnel",
+  "user_id": "2030"
+}
+```
+
+### Trigger #2
+
 ```html
 <button
   data-tracking=""
@@ -59,4 +84,13 @@ To prepare triggers, you need to add `data-tracking` attribute. To ensure that a
 >
   Build Digital Products
 </button>
+```
+
+event object for this trgigger
+```json
+{
+  "event": "cta_click"
+  "label": "Digital Product Studio",
+  "layout": "home"
+}
 ```
