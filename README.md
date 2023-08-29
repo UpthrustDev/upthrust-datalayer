@@ -18,10 +18,11 @@ import { DataLayer } from "@upthrust/datalayer";
 function init() {
   window.tracking = new DataLayer();
 
-  window.customClickEvent = () => {
+  window.changeLanguage = (language) => {
     // The class instance contains a pushvent function for the ability to create custom triggers
     window.tracking.pushEvent("click", {
-      type: "custom"
+      type: "language_change",
+      language
     });
   };
 }
@@ -92,5 +93,20 @@ event object that will be sent to the datalayer
   "event": "cta_click"
   "label": "Digital Product Studio",
   "layout": "home"
+}
+```
+
+### Custom Trigger
+
+```html
+<button onclick="changeLanguage("en")">
+  Change Language
+</button>
+```
+
+```json
+{
+  "event": "language_change"
+  "language": "en",
 }
 ```
