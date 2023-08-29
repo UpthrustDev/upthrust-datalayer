@@ -1,5 +1,7 @@
 # Upthrust Datalayer module
 
+**This module only works with `dataLayer` array**
+
 In this example, a module is imported into the project and initialized. It listens for triggers and automatically collects click events.
 
 ```js
