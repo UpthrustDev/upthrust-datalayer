@@ -1,6 +1,9 @@
-interface DataLayerObject {
-  event?: string;
+interface KeyValuePair {
   [key: string | number]: any;
 }
 
-export { DataLayerObject };
+interface DataLayerEvent extends KeyValuePair {
+  event?: string;
+}
+
+export { KeyValuePair, DataLayerEvent };

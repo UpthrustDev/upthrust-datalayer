@@ -1,41 +1,18 @@
-import {DataLayerObject} from "./types/types";
+import { DataLayerEvent } from "./types/types";
 
 export class DataLayer {
   private static instance: DataLayer;
-  private defaultProps: Record<string, any> = {};
-  private validators: Record<string, any> = {};
-  private readonly triggers: NodeList;
-  private readonly selector: string = "[data-tracking]";
+
+  private eventProps: Map<string, DataLayerEvent>;
+  private eventValidators: Map<string, any>;
 
   constructor() {
     window.dataLayer = window.dataLayer || [];
-    this.triggers = document.querySelectorAll(this.selector);
 
-    if (this.triggers) {
-      Array.from(this.triggers).map((trigger) => {
-        trigger.addEventListener("click", (e: Event) => {
-          if (e.currentTarget instanceof HTMLElement) {
-            const event = e.currentTarget.dataset.trackingEvent || "";
-            const config = [...e.currentTarget.attributes]
-                .filter((attr) => /^data-tracking-/g.test(attr.name))
-                .reduce(
-                    (acc, attr) => ({
-                      ...acc,
-                      [attr.name
-                          .replace("data-tracking-", "")
-                          .split("-")
-                          .join("_")]: attr.value,
-                    }),
-                    {}
-                );
+    this.eventProps = new Map();
+    this.eventValidators = new Map();
 
-            if (event) {
-              this.pushEvent(event, config);
-            }
-          }
-        });
-      });
-    }
+    this.setEventListeners();
   }
 
   public static getInstance(): DataLayer {
@@ -45,29 +22,39 @@ export class DataLayer {
     return DataLayer.instance;
   }
 
-  registerEventDefaultProps(event: string, props: object) {
-    this.defaultProps = {
-      ...this.defaultProps,
-      [event]: props,
-    }
+  private setEventListeners() {
+    document.addEventListener('click', this.clickListener);
   }
 
-  registerEventValidators(event: string, callback: (config: DataLayerObject) => boolean ) {
-    this.validators = {
-      ...this.validators,
-      [event]: callback,
+  private clickListener = (event: MouseEvent) => {
+
+    if (event.target instanceof HTMLElement && event.target.matches('[data-tracking]')) {
+      const props = this.createPropsFromAttributes(event.target.attributes);
+
+      if (props.event) {
+        this.pushEvent(props.event, props);
+      }
     }
+
   }
 
-  pushEvent(event: string, props: DataLayerObject) {
+  public setEventProps(event: string, props: object): void {
+    this.eventProps.set(event, props);
+  }
 
-    if (this.validators[event]) {
-      if (this.validators[event](props) === true) {
+  public setEventValidator(event: string, callback: (props: DataLayerEvent) => boolean): void {
+    this.eventProps.set(event, callback);
+  }
+
+  public pushEvent(event: string, props: DataLayerEvent) {
+
+    if (this.eventValidators.has(event)) {
+      if (this.eventValidators.get(event)(props) === true) {
         window.dataLayer.push({
           event: event,
           page: window.location.href,
           ...props,
-          ...this.defaultProps[event],
+          ...this.eventProps.get(event),
         });
       } else {
         console.warn(`DataLayer: Event "${event}" wasn't validated`);
@@ -77,8 +64,27 @@ export class DataLayer {
         event: event,
         page: window.location.href,
         ...props,
-        ...this.defaultProps[event],
+        ...this.eventProps.get(event),
       });
     }
+  }
+
+  createPropsFromAttributes(attributes: NamedNodeMap): DataLayerEvent {
+    return [...attributes]
+      .filter((attr) => /^data-tracking-/g.test(attr.name))
+      .reduce(
+        (acc, attr) => ({
+          ...acc,
+          [this.formatPropName(attr.name)]: attr.value,
+        }),
+        {}
+      ) as DataLayerEvent;
+  }
+
+  formatPropName(propName: string): string {
+    return propName
+      .replace("data-tracking-", "")
+      .split("-")
+      .join("_")
   }
 }
