@@ -64,15 +64,17 @@ Since the default props for the "download" event were specified, click on the tr
 To filter and prevent certain objects from being sent use `setEventValidator`. Just provide callback function to validate props
 
 ```js
-DataLayer.setEventValidator('download', props => props.type === "ebook")
+/**
+ * Send event to dataLayer only if `download_type` is `ebook`
+ */
+DataLayer.setEventValidator('download', props => props.download_type === "ebook")
 
 /**
- * An example of using a custom trigger
- * This event will not be pushed to dataLayer since type prop is not passed validation
+ * This event will not be pushed to dataLayer since `download_type` prop is not passed validation
  */
 const handleClickDownloadButton = (props) => DataLayer.pushEvent('download', {
     ...props,
-    type: "file"
+    download_type: "file"
 })
 
 /**
@@ -80,6 +82,6 @@ const handleClickDownloadButton = (props) => DataLayer.pushEvent('download', {
  */
 const handleClickDownloadButton2 = (props) => DataLayer.pushEvent('download', {
     ...props,
-    type: "ebook"
+    download_type: "ebook"
 })
 ```
