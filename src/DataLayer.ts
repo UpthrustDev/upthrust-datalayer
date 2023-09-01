@@ -1,18 +1,24 @@
-import { DataLayerEvent } from "./types/types";
+import { DataLayerEvent, PropNameFormat } from "./types/types";
 
 export class DataLayer {
   private static instance: DataLayer;
 
   private eventProps: Map<string, DataLayerEvent>;
   private eventValidators: Map<string, any>;
+  private readonly eventTriggers: Set<Element>;
 
   constructor() {
     window.dataLayer = window.dataLayer || [];
 
     this.eventProps = new Map();
     this.eventValidators = new Map();
+    this.eventTriggers = new Set(
+      ...[document.querySelectorAll("[data-tracking]")]
+    );
 
-    this.setEventListeners();
+    if (this.eventTriggers.size) {
+      this.setTriggerListeners();
+    }
   }
 
   public static getInstance(): DataLayer {
@@ -22,69 +28,79 @@ export class DataLayer {
     return DataLayer.instance;
   }
 
-  private setEventListeners() {
-    document.addEventListener('click', this.clickListener);
+  private setTriggerListeners() {
+    [...this.eventTriggers].map((trigger) =>
+      trigger.addEventListener("click", this.triggerListener)
+    );
   }
 
-  private clickListener = (event: MouseEvent) => {
-
-    if (event.target instanceof HTMLElement && event.target.matches('[data-tracking]')) {
-      const props = this.createPropsFromAttributes(event.target.attributes);
+  private triggerListener = (event: Event) => {
+    if (event.currentTarget instanceof Element) {
+      const props = this.createPropsFromAttributes(
+        event.currentTarget.attributes
+      );
 
       if (props.event) {
         this.pushEvent(props.event, props);
       }
     }
+  };
 
-  }
-
-  public setEventProps(event: string, props: object): void {
+  public setEventDefaultProps(event: string, props: object): void {
     this.eventProps.set(event, props);
   }
 
-  public setEventValidator(event: string, callback: (props: DataLayerEvent) => boolean): void {
-    this.eventProps.set(event, callback);
+  public setEventValidator(
+    event: string,
+    callback: (props: DataLayerEvent) => boolean
+  ): void {
+    this.eventValidators.set(event, callback);
   }
 
   public pushEvent(event: string, props: DataLayerEvent) {
-
     if (this.eventValidators.has(event)) {
       if (this.eventValidators.get(event)(props) === true) {
-        window.dataLayer.push({
-          event: event,
-          page: window.location.href,
-          ...props,
-          ...this.eventProps.get(event),
-        });
+        this.sendEvent(event, props);
       } else {
         console.warn(`DataLayer: Event "${event}" wasn't validated`);
       }
     } else {
-      window.dataLayer.push({
-        event: event,
-        page: window.location.href,
-        ...props,
-        ...this.eventProps.get(event),
-      });
+      this.sendEvent(event, props);
     }
+  }
+
+  private sendEvent(event: string, props: DataLayerEvent) {
+    window.dataLayer.push({
+      event: event,
+      ...props,
+      ...this.eventProps.get(event),
+    });
   }
 
   createPropsFromAttributes(attributes: NamedNodeMap): DataLayerEvent {
     return [...attributes]
-        .filter((attr) => /^data-tracking-/g.test(attr.name))
-        .reduce(
-            (acc, attr) => ({
-              ...acc,
-              [this.formatPropName(attr.name)]: attr.value,
-            }),
-            {}
-        ) as DataLayerEvent;
+      .filter((attr) => /^data-tracking-/g.test(attr.name))
+      .reduce(
+        (acc, attr) => ({
+          ...acc,
+          [this.formatPropName(attr.name)]: attr.value,
+        }),
+        {}
+      ) as DataLayerEvent;
   }
 
-  formatPropName(propName: string): string {
-    return propName
-        .replace("data-tracking-", "")
-        .split("-")
-        .join("_")
+  formatPropName(propName: string, format: PropNameFormat = "camel"): string {
+    const propNameArray = propName.replace("data-tracking-", "").split("-");
+
+    const propNames: Record<PropNameFormat, string> = {
+      snake: propNameArray.join("_"),
+      camel: propNameArray
+        .map((word, index) =>
+          index === 0 ? word : word.charAt(0).toUpperCase() + word.slice(1)
+        )
+        .join(""),
+    };
+
+    return propNames[format];
   }
 }

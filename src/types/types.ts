@@ -1,6 +1,11 @@
-interface DataLayerObject {
-  event?: string;
+interface KeyValuePair {
   [key: string | number]: any;
 }
 
-export { DataLayerObject };
+interface DataLayerEvent extends KeyValuePair {
+  event?: string;
+}
+
+type PropNameFormat = 'camel' | 'snake'
+
+export { KeyValuePair, DataLayerEvent, PropNameFormat };

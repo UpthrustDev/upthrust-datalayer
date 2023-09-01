@@ -2,121 +2,84 @@
 
 **This module only works with `dataLayer` array**
 
-In this example, a module is imported into the project and initialized. It listens for triggers and automatically collects click events.
+## Installation
 
-```js
-// minimal working example
-import { DataLayer } from "@upthrust/datalayer";
-
-const tracking = new DataLayer();
-```
-
-```js
-// example with custom triggers
-import { DataLayer } from "@upthrust/datalayer";
-
-(async function () {
-  if ("complete" === document.readyState) {
-    init();
-  } else {
-    window.addEventListener("load", () => {
-      init();
-    });
-  }
-})();
-
-function init() {
-  window.tracking = new DataLayer();
-
-  window.changeLanguage = (language) => {
-    // The class instance contains a `pushEvent` function for the ability to create custom triggers
-    window.tracking.pushEvent("click", {
-      type: "language_change",
-      language
-    });
-  };
-}
-```
-
-To prepare triggers, you need to add `data-tracking` attribute. To ensure that an event is sent, attribute `data-tracking-event` with the name of the event should be specified. Other attributes prefixed with `data-tracking-` will be parsed automatically.
+`npm install @upthrust/datalayer`
 
 ## Usage
 
-### Trigger #1
+```js
+import { DataLayer } from "@upthrust/datalayer";
+```
+
+### HTML triggers
+
+To prepare triggers(click), just add `data-tracking` attribute to any DOM element.
+To ensure that an event is sent, attribute `data-tracking-event` with the name of the event should be specified as well.
+Add as many `data-tracking-props-name` attributes as needed. All attributes prefixed with `data-tracking-` will be parsed automatically.
+
+#### Example
 
 ```html
 <button
   data-tracking=""
-  data-tracking-event="button_click"
+  data-tracking-event="download"
   data-tracking-label="Start accelerating my growth"
+  data-tracking-download-type="ebook"
 >
-  Start accelerating my growth
+  Download eBook
 </button>
 ```
 
-event object that will be sent to the datalayer
+Object that will be pushed to the datalayer
 ```json
 {
-  "event": "button_click"
-  "label": "Start accelerating my growth"
+  "event": "download",
+  "label": "Start accelerating my growth",
+  "download_type": "ebook"
 }
 ```
 
-### Trigger #2
+### Customize behavior
 
-```html
-<button
-  data-tracking=""
-  data-tracking-event="download_click"
-  data-tracking-label="Reversed Funnel"
-  data-tracking-user-id="2030"
->
-  Download
-</button>
+`setEventDefaultProps` adds default props to the event, these props will be added to any event with the given name
+
+```js
+DataLayer.setEventDefaultProps('download', {
+    page: window.location.href
+})
 ```
 
-event object that will be sent to the datalayer
-```json
-{
-  "event": "download_click"
-  "label": "Reversed Funnel",
-  "user_id": "2030"
-}
-```
-
-### Trigger #2
-
-```html
-<button
-  data-tracking=""
-  data-tracking-event="cta_click"
-  data-tracking-label="Digital Product Studio"
-  data-tracking-layout="home"
->
-  Build Digital Products
-</button>
-```
-
-event object that will be sent to the datalayer
-```json
-{
-  "event": "cta_click"
-  "label": "Digital Product Studio",
-  "layout": "home"
-}
-```
-
-### Custom Trigger
-
-```html
-<button onclick="changeLanguage("en")">
-  Change Language
-</button>
-```
+Since the default props for the "download" event were specified, click on the trigger from the example above will generate the following result
 
 ```json
 {
-  "event": "language_change"
-  "language": "en",
+  "event": "download",
+  "label": "Start accelerating my growth",
+  "download_type": "ebook",
+  "page": "https://github.com/UpthrustDev/upthrust-datalayer/"
 }
+```
+
+To filter and prevent certain objects from being sent use `setEventValidator`. Just provide callback function to validate props
+
+```js
+DataLayer.setEventValidator('download', props => props.type === "ebook")
+
+/**
+ * An example of using a custom trigger
+ * This event will not be pushed to dataLayer since type prop is not passed validation
+ */
+const handleClickDownloadButton = (props) => DataLayer.pushEvent('download', {
+    ...props,
+    type: "file"
+})
+
+/**
+ * This event is valid and will be pushed to dataLayer
+ */
+const handleClickDownloadButton2 = (props) => DataLayer.pushEvent('download', {
+    ...props,
+    type: "ebook"
+})
 ```
