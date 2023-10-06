@@ -5,20 +5,14 @@ export class DataLayer {
 
   private eventProps: Map<string, DataLayerEvent>;
   private eventValidators: Map<string, any>;
-  private readonly eventTriggers: Set<Element>;
 
   constructor() {
     window.dataLayer = window.dataLayer || [];
 
     this.eventProps = new Map();
     this.eventValidators = new Map();
-    this.eventTriggers = new Set(
-      ...[document.querySelectorAll("[data-tracking]")]
-    );
 
-    if (this.eventTriggers.size) {
-      this.setTriggerListeners();
-    }
+      this.setListener();
   }
 
   public static getInstance(): DataLayer {
@@ -28,23 +22,26 @@ export class DataLayer {
     return DataLayer.instance;
   }
 
-  private setTriggerListeners() {
-    [...this.eventTriggers].map((trigger) =>
-      trigger.addEventListener("click", this.triggerListener)
-    );
+  private setListener() {
+    window.addEventListener('click', (ev: Event) => {
+      const eventTarget = ev.target as HTMLElement;
+      const target = eventTarget.closest('[data-tracking]');
+
+      if (target) {
+        this.triggerListener(target);
+      }
+    });
   }
 
-  private triggerListener = (event: Event) => {
-    if (event.currentTarget instanceof Element) {
+  private triggerListener = (target: Element) => {
       const props = this.createPropsFromAttributes(
-        event.currentTarget.attributes
+        target.attributes
       );
 
       if (props.event) {
         this.pushEvent(props.event, props);
       }
     }
-  };
 
   public setEventDefaultProps(event: string, props: object): void {
     this.eventProps.set(event, props);
