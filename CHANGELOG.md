@@ -1,5 +1,11 @@
 # @upthrust/datalayer
 
+## 2.0.3
+
+### Patch Changes
+
+- 22996d3: Refactor listeners
+
 ## 2.0.2
 
 ### Patch Changes
