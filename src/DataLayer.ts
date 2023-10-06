@@ -25,7 +25,7 @@ export class DataLayer {
   private setListener() {
     window.addEventListener('click', (ev: Event) => {
       const eventTarget = ev.target as HTMLElement;
-      const target = eventTarget.closest('[data-tracking]');
+      const target = eventTarget.closest('[data-tracking-event]');
 
       if (target) {
         this.triggerListener(target);
