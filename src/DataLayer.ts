@@ -5,12 +5,20 @@ export class DataLayer {
 
   private eventProps: Map<string, DataLayerEvent>;
   private eventValidators: Map<string, any>;
+  private readonly eventTriggers: Set<Element>;
 
   constructor() {
     window.dataLayer = window.dataLayer || [];
 
     this.eventProps = new Map();
     this.eventValidators = new Map();
+    this.eventTriggers = new Set(
+        ...[document.querySelectorAll("[data-tracking='trigger']")]
+    );
+
+    if (this.eventTriggers.size) {
+      this.setTriggerListeners();
+    }
 
       this.setListener();
   }
@@ -20,6 +28,12 @@ export class DataLayer {
       DataLayer.instance = new DataLayer();
     }
     return DataLayer.instance;
+  }
+
+  private setTriggerListeners() {
+    [...this.eventTriggers].map((trigger) =>
+        trigger.addEventListener("click", () => this.triggerListener(trigger))
+    );
   }
 
   private setListener() {
