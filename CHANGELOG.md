@@ -1,5 +1,11 @@
 # @upthrust/datalayer
 
+## 2.0.5
+
+### Patch Changes
+
+- afb35eb: Add trigger listener
+
 ## 2.0.4
 
 ### Patch Changes
